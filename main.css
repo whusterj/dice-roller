@@ -1,0 +1,186 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #333;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+p {
+  color: white;
+}
+
+.container {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 1rem 0 0 0;
+  }
+}
+
+.button {
+  padding: 0.6rem;
+  border-radius: 10%;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: lightseagreen;
+  border: none;
+  background-color: transparent;
+
+  transition: 200ms linear all;
+}
+.button:hover {
+}
+.button:active {
+  background-color: rgba(173, 255, 47, 0.6);
+}
+.button:focus {
+  outline-color: #97ea8b;
+  outline-style: dotted;
+  outline-width: 4px;
+}
+
+.link {
+  color: lightseagreen;
+  text-decoration: none;
+  font-weight: bold;
+}
+.link:active,
+.link:visited {
+  color: lightseagreen;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  height: 32rem;
+  margin-bottom: 3rem;
+}
+.grid__header {
+  display: flex;
+  flex: 1;
+  margin-bottom: 0.5rem;
+}
+.grid__row {
+  display: flex;
+  flex: 2;
+}
+.grid__cell {
+  flex: 1;
+  min-width: 4rem;
+}
+.grid__cell--centered {
+  text-align: center;
+}
+.grid__cell--label {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+.grid__cell--input {}
+.grid__cell--input > .input {
+  width: 80%;
+  border: none;
+  background-color: transparent;
+  color: #ccc;
+  padding: 1.4rem 0.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+
+  transition: 200ms linear all;
+}
+.grid__cell--input > .input:focus {
+  outline-color: #97ea8b;
+  outline-style: dotted;
+  outline-width: 4px;
+}
+.grid__cell--number {
+  color: #ccc;
+  font-weight: 600;
+  font-size: 1.2rem;
+  padding: 1.4rem 0;
+}
+.grid__cell--number-emphasis {
+  font-weight: 600;
+  font-size: 1.8rem;
+  padding: 1rem 0;
+}
+
+.footer {
+  text-align: center;
+}
+
+@keyframes rolling {
+  0%    {
+    transform: scale3d(1, 1, 1) rotate3d(0);
+  }
+  25%   {
+    transform: rotate3d(0, 0, 1, 0.05turn);
+  }
+  50%   {
+    transform: rotate3d(0, 0, 1, -0.05turn);
+  }
+  75%   {
+    transform: scale3d(1.1, 1.1, 1.1)
+                rotate3d(0, 0, 1, 0.05turn);
+  }
+  100%  {
+    transform: scale3d(1, 1, 1) rotate3d(0);
+  }
+}
+
+.icon {
+  width: 3rem;
+  height: 3rem;
+  background-image: url('images/diceset_twotone.svg');
+  background-repeat: no-repeat;
+  background-size: 9rem;
+  display: none;
+}
+.icon--rolling {
+  animation-name: rolling;
+  animation-duration: 0.3s;
+}
+.icon--d4 {
+  display: block;
+}
+.icon--d6 {
+  display: block;
+  background-position-x: -46px;
+  background-position-y: 0px;
+}
+.icon--d8 {
+  display: block;
+  background-position-x: -92px;
+  background-position-y: 0px;
+}
+.icon--d10 {
+  display: block;
+  background-position-x: -3px;
+  background-position-y: -44px;
+}
+.icon--d12 {
+  display: block;
+  background-position-x: -48px;
+  background-position-y: -44px;
+}
+.icon--d20 {
+  display: block;
+  background-position-x: -92px;
+  background-position-y: -44px;
+}
+.icon--d100 {
+  display: block;
+  background-image: url('images/d100.svg');
+  background-size: 3rem;
+  background-position-x: 0;
+  background-position-y: 0;
+}
