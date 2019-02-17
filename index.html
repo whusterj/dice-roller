@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Dice Roller</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #333;
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    p {
+      color: white;
+    }
+
+    .container {
+      max-width: 36rem;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        padding: 1rem 0 0 0;
+      }
+    }
+
+    .button {
+      padding: 0.6rem;
+      border-radius: 10%;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: lightseagreen;
+      border: none;
+      background-color: transparent;
+
+      transition: 200ms linear all;
+    }
+    .button:hover {
+    }
+    .button:active {
+      background-color: rgba(173, 255, 47, 0.6);
+    }
+    .button:focus {
+      outline-color: #97ea8b;
+      outline-style: dotted;
+      outline-width: 4px;
+    }
+
+    .link {
+      color: lightseagreen;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .link:active,
+    .link:visited {
+      color: lightseagreen;
+    }
+
+    .grid {
+      display: flex;
+      flex-direction: column;
+      height: 32rem;
+      margin-bottom: 3rem;
+    }
+    .grid__header {
+      display: flex;
+      flex: 1;
+      margin-bottom: 0.5rem;
+    }
+    .grid__row {
+      display: flex;
+      flex: 2;
+    }
+    .grid__cell {
+      flex: 1;
+      min-width: 4rem;
+    }
+    .grid__cell--centered {
+      text-align: center;
+    }
+    .grid__cell--label {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    .grid__cell--input {}
+    .grid__cell--input > .input {
+      width: 80%;
+      border: none;
+      background-color: transparent;
+      color: #ccc;
+      padding: 1.4rem 0.5rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+
+      transition: 200ms linear all;
+    }
+    .grid__cell--input > .input:focus {
+      outline-color: #97ea8b;
+      outline-style: dotted;
+      outline-width: 4px;
+    }
+    .grid__cell--number {
+      color: #ccc;
+      font-weight: 600;
+      font-size: 1.2rem;
+      padding: 1.4rem 0;
+    }
+    .grid__cell--number-emphasis {
+      font-weight: 600;
+      font-size: 1.8rem;
+      padding: 1rem 0;
+    }
+
+    .footer {
+      text-align: center;
+    }
+
+    @keyframes rolling {
+      0%    {
+        transform: scale3d(1, 1, 1) rotate3d(0);
+      }
+      25%   {
+        transform: rotate3d(0, 0, 1, 0.05turn);
+      }
+      50%   {
+        transform: rotate3d(0, 0, 1, -0.05turn);
+      }
+      75%   {
+        transform: scale3d(1.1, 1.1, 1.1)
+                   rotate3d(0, 0, 1, 0.05turn);
+      }
+      100%  {
+        transform: scale3d(1, 1, 1) rotate3d(0);
+      }
+    }
+
+    .icon {
+      width: 3rem;
+      height: 3rem;
+      background-image: url('diceset_twotone.svg');
+      background-repeat: no-repeat;
+      background-size: 9rem;
+      display: none;
+    }
+    .icon--rolling {
+      animation-name: rolling;
+      animation-duration: 0.3s;
+    }
+    .icon--d4 {
+      display: block;
+      background-position-x: 0;
+      background-position-y: 0;
+    }
+    .icon--d6 {
+      display: block;
+      background-position-x: -46px;
+      background-position-y: 0px;
+    }
+    .icon--d8 {
+      display: block;
+      background-position-x: -92px;
+      background-position-y: 0px;
+    }
+    .icon--d10 {
+      display: block;
+      background-position-x: -3px;
+      background-position-y: -44px;
+    }
+    .icon--d12 {
+      display: block;
+      background-position-x: -48px;
+      background-position-y: -44px;
+    }
+    .icon--d20 {
+      display: block;
+      background-position-x: -92px;
+      background-position-y: -44px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <div class="grid">
+        <div class="grid__header">
+          <span class="grid__cell grid__cell--label grid__cell--centered">Die</span>
+          <span class="grid__cell grid__cell--label grid__cell--centered">#</span>
+          <span class="grid__cell grid__cell--label grid__cell--centered">Modifier</span>
+          <span
+            class="grid__cell grid__cell--label grid__cell--centered"
+            title="Sum of natural dice rolls"
+          >
+            Nat.
+          </span>
+          <span class="grid__cell grid__cell--label grid__cell--centered">Final</span>
+        </div>
+
+        <roller-row
+          v-for="(roller, index) in rollerList"
+          :key="index"
+          :roller="roller"
+          @reroll="onReRoll"
+        />
+      </div>
+
+      <footer class="footer">
+        Dice Roller | Created by <a class="link" href="https://williamhuster.com">William Huster</a>
+      </footer>
+
+      <div aria-live="assertive" style="position: fixed; width: 0; height: 0; left: -1000px;">
+        <p v-if="lastResult">
+          Natural Rolls: {{ lastResult.value }}, Modified Result: {{ lastResult.modifiedValue }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.6/vue.min.js"></script>
+
+  <script type="text/x-template" id="RollerRowTemplate">
+    <div class="grid__row">
+      <span class="grid__cell grid__cell--centered">
+        <button
+          class="button"
+          @click="() => this.$emit('reroll', roller.roll())"
+          :aria-label="`Click this button to roll a ${roller.name}`"
+        >
+          <div
+            class="icon"
+            :class="{
+              'icon--d4': roller.name === 'D4',
+              'icon--d6': roller.name === 'D6',
+              'icon--d8': roller.name === 'D8',
+              'icon--d10': roller.name === 'D10',
+              'icon--d12': roller.name === 'D12',
+              'icon--d20': roller.name === 'D20',
+              'icon--d100': roller.name === 'D100',
+              'icon--rolling': roller.rolling === true,
+            }"
+          ></div>
+        </button>
+      </span>
+      <span class="grid__cell grid__cell--input">
+        <input
+          type="number" step="1"
+          class="input"
+          v-model="roller.number"
+          :aria-label="`Input the number of ${roller.name} dice to roll.`"
+        >
+      </span>
+      <span class="grid__cell grid__cell--input">
+        <input
+          type="number" step="1"
+          class="input"
+          v-model="roller.modifier"
+          :aria-label="`Input the modifier for ${roller.name} dice rolls.`"
+        >
+      </span>
+      <span
+        class="grid__cell grid__cell--centered grid__cell--number"
+        :aria-label="`This is the total of all ${roller.name} dice rolls.`"
+      >
+        <span>{{ roller.value }}</span>
+      </span>
+      <span
+        class="grid__cell grid__cell--centered grid__cell--number-emphasis"
+        :aria-label="`This is the ${roller.name} final result after adding modifiers.`"
+      >
+        {{ roller.modifiedValue }}
+      </span>
+    </div>
+  </script>
+
+  <script>
+    class Die {
+      /**
+      * Represents a game die with any number of sides.
+      *
+      * @property {number} sides - Number of sides on the die, defaults to six.
+      * @property {number} value - The value of the most recent roll.
+      *
+      * @constructor - Takes `sides` as an optional parameter.
+      */
+      constructor (sides = 6, modifier = 0, value = null) {
+        this.sides = sides
+        this.modifier = modifier
+        this.value = value === null ? this.roll() : value
+      }
+
+      roll () {
+        this.value = Math.floor(Math.random() * this.sides) + 1
+        return this.value
+      }
+
+      copy () {
+        return new Die(this.sides, this.modifier)
+      }
+
+      static create(sides, modifier, value) {
+        return new Die(sides, modifier, value)
+      }
+
+      static createArray (sides, modifier, number) {
+        const result = []
+        for (let i = 0; i < number; i++) {
+          result.push(Die.create(sides, modifier))
+        }
+        return result
+      }
+
+      get modifiedValue () {
+        return this.value + this.modifier
+      }
+
+      get modifier () {
+        return this._modifier
+      }
+
+      set modifier (value) {
+        this._modifier = Number(value)
+      }
+
+      get name () {
+        return `D${this.sides}`
+      }
+    }
+
+    class Roller {
+      /**
+       * Maintain a collection of dice.
+       *
+       * `Roller` allows us to roll a set of die with the same number of sides
+      *  and same modifier at the same time.
+       */
+      constructor (sides = 6, modifier = 0, number = 1) {
+        this.dice = null
+        this.sides = sides
+        this.number = number
+        this.modifier = modifier
+        this.dice = Die.createArray(sides, modifier, number)
+        this.rolling = false
+      }
+
+      updateDice () {
+        this.dice = Die.createArray(this.sides, this.modifier, this.number)
+      }
+
+      get number () {
+        return this._number
+      }
+
+      set number (value) {
+        this._number = value
+        this.updateDice()
+      }
+
+      get modifier () {
+        return this._modifier
+      }
+
+      set modifier (value) {
+        this._modifier = value
+        this.dice = this.dice.map(d => new Die(this.sides, this.modifier, d.value))
+      }
+
+      get value () {
+        if (this.dice === null) { return null }
+        return this.dice.reduce((acc, die) => (acc + die.value), 0)
+      }
+
+      get modifiedValue () {
+        if (this.dice === null) { return null }
+        return this.dice.reduce((acc, die) => (acc + die.modifiedValue), 0)
+      }
+
+      get name () {
+        return `D${this.sides}`
+      }
+
+      roll () {
+        if (this.rolling) return
+        this.dice.forEach(d => d.roll())
+        this.rolling = true
+        setTimeout(() => { this.rolling = false}, 300)
+        return {
+          value: this.value,
+          modifiedValue: this.modifiedValue,
+        }
+      }
+    }
+
+    class AppState {
+      /**
+       * Holds `Die` instances of various sizes for the die roller app.
+       */
+      constructor () {
+        this.d4 = new Roller(4)
+        this.d6 = new Roller(6)
+        this.d8 = new Roller(8)
+        this.d10 = new Roller(10)
+        this.d12 = new Roller(12)
+        this.d20 = new Roller(20)
+        this.d100 = new Roller(100)
+      }
+    }
+
+    /**
+     * Component to expose the properties and methods of a die.
+     */
+    const RollerRow = Vue.component('RollerRow', {
+      template: '#RollerRowTemplate',
+      props: {
+        roller: {
+          type: Object,
+          required: true,
+        }
+      },
+    })
+
+    const app = new Vue({
+      el: '#app',
+      components: {
+        RollerRow,
+      },
+      data () {
+        return {
+          state: new AppState(),
+          lastResult: null,
+        }
+      },
+      computed: {
+        rollerList () {
+          return [
+            this.state.d4,
+            this.state.d6,
+            this.state.d8,
+            this.state.d10,
+            this.state.d12,
+            this.state.d20,
+            this.state.d100,
+          ]
+        }
+      },
+      methods: {
+        onReRoll (value) {
+          this.lastResult = value
+        }
+      }
+    })
+  </script>
+</body>
+</html>
