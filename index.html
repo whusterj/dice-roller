@@ -160,8 +160,6 @@
     }
     .icon--d4 {
       display: block;
-      background-position-x: 0;
-      background-position-y: 0;
     }
     .icon--d6 {
       display: block;
@@ -187,6 +185,13 @@
       display: block;
       background-position-x: -92px;
       background-position-y: -44px;
+    }
+    .icon--d100 {
+      display: block;
+      background-image: url('d100.svg');
+      background-size: 3rem;
+      background-position-x: 0;
+      background-position-y: 0;
     }
   </style>
 </head>
@@ -221,7 +226,10 @@
 
       <div aria-live="assertive" style="position: fixed; width: 0; height: 0; left: -1000px;">
         <p v-if="lastResult">
-          Natural Rolls: {{ lastResult.value }}, Modified Result: {{ lastResult.modifiedValue }}
+          Rolled {{ lastResult.number }} {{ lastResult.name }}
+          with a {{ lastResult.modifier > 0 ? 'plus' : '' }} {{ lastResult.modifier }} modifier,
+          Natural Result: {{ lastResult.value }},
+          Modified Result: {{ lastResult.modifiedValue }}
         </p>
       </div>
     </div>
@@ -236,7 +244,7 @@
         <button
           class="button"
           @click="() => this.$emit('reroll', roller.roll())"
-          :aria-label="`Click this button to roll a ${roller.name}`"
+          :aria-label="`Click to roll ${roller.name}`"
         >
           <div
             class="icon"
@@ -396,6 +404,9 @@
         this.rolling = true
         setTimeout(() => { this.rolling = false}, 300)
         return {
+          number: this.number,
+          modifier: this.modifier,
+          name: this.name,
           value: this.value,
           modifiedValue: this.modifiedValue,
         }
